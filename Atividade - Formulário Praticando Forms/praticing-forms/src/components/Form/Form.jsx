@@ -1,18 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { FormStyled } from "./FormStyled";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import Card from "../UserCard/Card";
 
 const Form = () => {
+  const [user, setUser] = useState(null);
+
   const formSchema = yup.object().shape({
     user: yup.string().required("Nome de usuário obrigatório"),
-    username: yup.string().required("Nome completo obrigatório"),
-    email: yup.string().required("Email obrigatório"),
-    emailconfirm: yup.string().required("Confirmação de email obrigatória"),
-    password: yup.string().required("Senha obrigatória"),
-    passwordconfirm: yup.string().required("Confirmação obrigatória"),
-    checkbox: yup.boolean().isTrue("Por favor, confirme os termos de uso"),
+    username: yup
+      .string()
+      .required("Nome completo obrigatório")
+      .max(18, "Máximo de 18 caracteres"),
+    email: yup
+      .string()
+      .required("Email obrigatório")
+      .email("Insira um email válido"),
+    emailconfirm: yup
+      .string()
+      .required("Confirmação de email obrigatória")
+      .email("Insira um email válido"),
+    password: yup
+      .string()
+      .required("Senha obrigatória")
+      .min(7, "Deve possuir no minimo 7 caracteres"),
+    passwordconfirm: yup
+      .string()
+      .required("Confirmação obrigatória")
+      .min(7, "Deve possuir no minimo 7 caracteres"),
+    checkbox: yup.boolean(),
   });
 
   const {
@@ -22,8 +40,10 @@ const Form = () => {
   } = useForm({
     resolver: yupResolver(formSchema),
   });
-  
-  const onSubmitFunction = (data) => console.log(data);
+
+  const onSubmitFunction = (data) => setUser(data);
+
+  console.log(user)
   return (
     <FormStyled onSubmit={handleSubmit(onSubmitFunction)}>
       <input type="text" placeholder="Nome de Usuário*" {...register("user")} />
@@ -39,7 +59,7 @@ const Form = () => {
       <input
         type="email"
         placeholder="Confirmar E-mail*"
-        {...register("email")}
+        {...register("emailconfirm")}
       />
       {errors.emailconfirm?.message}
       <div className="password">
@@ -55,7 +75,7 @@ const Form = () => {
           <input
             type="password"
             placeholder="Confirmar Senha*"
-            {...register("password")}
+            {...register("passwordconfirm")}
           />
           {errors.passwordconfirm?.message}
         </div>
@@ -66,6 +86,7 @@ const Form = () => {
         <label>Eu aceito os termos de uso da aplicação</label>
       </div>
       <button type="submit">CADASTRAR</button>
+      {user && <Card user={user}/>}
     </FormStyled>
   );
 };
